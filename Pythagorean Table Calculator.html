@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pythagorean Table Calculator</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <style>tbody { cursor: pointer; }</style>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+<!--<script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>-->
+<script>
+var rowsGenerated = 0;
+window.addEventListener("load", function(e) {
+	var table = document.querySelector("#table-body");
+	document.querySelector("#generate-rows").addEventListener("click", function(e) {
+        var button = document.querySelector("#generate-rows");
+        button.setAttribute("disabled", "disabled");
+        button.innerText = "Generating rows...";
+        setTimeout(function() {
+            console.log("Generating rows...");
+            for (var i = 0; i < 1000; i++) {
+                var m = Math.floor((-1 + Math.sqrt(8 * rowsGenerated + 1)) / 2) + 2;
+                var n = 1 + rowsGenerated - ((m - 1) * (m - 2) / 2);
+                var mn2 = 2 * m * n;
+                var sub = (m * m) - (n * n);
+                var add = (m * m) + (n * n);
+
+                var row = document.createElement("tr");
+                var mCell = document.createElement("th");
+                mCell.innerText = m;
+                row.append(mCell);
+                var nCell = document.createElement("th");
+                nCell.innerText = n;
+                row.append(nCell);
+                var mn2Cell = document.createElement("td");
+                mn2Cell.innerText = mn2;
+                row.append(mn2Cell);
+                var subCell = document.createElement("td");
+                subCell.innerText = sub;
+                row.append(subCell);
+                var addCell = document.createElement("td");
+                addCell.innerText = add;
+                row.append(addCell);
+                table.append(row);
+                rowsGenerated++;
+            }
+            document.querySelector("#row-counter").innerText = rowsGenerated;
+            button.innerText = "Generate 1000 more rows";
+            button.removeAttribute("disabled");
+        }, 10);
+	});
+    table.addEventListener("click", function(e) {
+        try {
+            var children = e.target.parentNode.childNodes;
+        var m = parseInt(children[0].innerText);
+        var n = parseInt(children[1].innerText);
+        document.querySelector("#detail-modal .modal-title").innerHTML = "m: <em>" + m + "</em>, n: <em>" + n + "</em>";
+        $("#detail-modal").modal("show");
+        var canvas = document.querySelector("#triangle-canvas");
+        var context = canvas.getContext("2d");
+        var sub = (m * m) - (n * n);
+        var mn2 = 2 * m * n;
+        var w = Math.min(sub, mn2) * canvas.height / Math.max(sub, mn2);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.moveTo((canvas.width - w) / 2, 0);
+        context.lineTo((canvas.width - w) / 2, canvas.height);
+        context.lineTo((canvas.width + w) / 2, canvas.height);
+        context.lineTo((canvas.width - w) / 2, 0);
+        context.strokeStyle = "black";
+        context.lineWidth = 3;
+        context.stroke();
+        context.font = "18px sans-serif";
+        context.textAlign = "right";
+        context.fillStyle = "black";
+        context.fillText(Math.max(sub, mn2).toString(), (canvas.width - w) / 2 - 10, canvas.height / 2);
+        context.textAlign = "left";
+        context.fillText(Math.min(sub, mn2).toString(), (canvas.width + w) / 2 + 20, canvas.height);
+        context.fillText(((m * m) + (n * n)).toString(), (canvas.width + (w / 2)) / 2, canvas.height / 2);
+        } catch (e) {alert(e);}
+    });
+});
+</script>
+</head>
+<body class="bg-dark">
+<header class="jumbotron jumbotron-fluid bg-primary text-white shadow-lg">
+<div class="container">
+<h1 class="display-3">Pythagorean Table Calculator</h1>
+<p class="lead">Calculate thousands of pythagorean triples in seconds!</p>
+<p class="text-white-50">Made by <a href="https://github.com/anli5005" class="text-white" target="_blank">Anthony Li</a>. Inspired by Mr. Litvak</p>
+</div>
+</header>
+<div class="container my-5 bg-white shadow rounded w-auto p-0">
+<div class="p-3">
+<p>Rows generated: <strong id="row-counter">0</strong></p>
+    <p>Click a row to visualize it.</p>
+<table class="table table-striped table-hover">
+<thead>
+<tr>
+<th>m</th>
+<th>n</th>
+<th>2mn</th>
+<th>m<sup>2</sup> - n<sup>2</sup></th>
+<th>m<sup>2</sup> + n<sup>2</sup></th>
+</tr>
+</thead>
+<tbody id="table-body">
+</tbody>
+</table>
+</div>
+<div class="p-3 border-top position-sticky bg-white rounded-bottom" style="bottom: 0;">
+<button id="generate-rows" class="btn btn-primary">Generate 1000 Rows</button>
+</div>
+</div>
+<div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+            </div>
+            <div class="modal-body">
+                <canvas style="height: 320px;" class="w-100 bg-white" id="triangle-canvas"></canvas>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
